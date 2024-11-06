@@ -1,0 +1,23 @@
+# ntpdの設定 /etc/ntp.confに配置
+# j2ファイルはAnsibleのテンプレートファイルでJinja2が動く
+
+# Drift file システムクロックのドリフトを記録するファイル
+driftfile /var/lib/ntp/ntp.drift
+
+# Log file NTPデーモンのログを出力するファイル
+logfile /var/log/ntp.log
+
+# 外部からのアクセスを完全に遮断 サーバとしての動作は全面禁止
+restrict -4 default kod notrap nomodify nopeer noquery
+restrict -6 default kod notrap nomodify nopeer noquery
+
+# ただしローカルホストからのアクセスOK, IPv4 v6両方
+restrict 127.0.0.1
+restrict ::1
+
+# NTP servers
+server ntp.nict.jp iburst
+
+# メインサーバーが利用できない場合のフォールバック
+# 負荷分散と冗長性の確保が目的
+pool jp.pool.ntp.org iburst
