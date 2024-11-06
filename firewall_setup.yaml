@@ -1,0 +1,41 @@
+---
+  # ブロックするのはユニキャストの接続限定らしい(mDNSはマルチキャスト)
+  # ssh設定の後で実行すること！
+- name: ufw(Uncomplicated Firewall)を設定 
+  hosts: nozpi5
+  vars_files:
+    - vars.yml
+  become: yes  # sudoで実行と同じ
+  tasks:
+    - name: なければ ufw をインストール
+      apt:
+        name: ufw
+        state: present
+        update_cache: yes
+
+    - name: SSHを許可
+      ufw:
+        rule: allow
+        port: '{{ ssh_port }}'
+        proto: tcp
+
+    - name: HTTPを許可
+      ufw:
+        rule: allow
+        port: '80'
+        proto: tcp
+
+    - name: HTTPSを許可
+      ufw:
+        rule: allow
+        port: '443'
+        proto: tcp
+
+    - name: その他の通信は全部拒否
+      ufw:
+        default: deny
+        direction: incoming
+
+    - name: ufwの有効化
+      ufw:
+        state: enabled

@@ -1,0 +1,32 @@
+---
+- name: SSH接続を安全に行えるようにする # ufw設定より先に実行すること！
+  hosts: nozpi5
+  vars_files:
+    - vars.yml
+  become: yes  # sudoで実行と同じ
+  tasks:
+    - name: SSHでパスワード認証をできなくする
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PasswordAuthentication'
+        line: 'PasswordAuthentication no'
+        state: present
+
+    - name: rootユーザでログインをできなくする
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PermitRootLogin'
+        line: 'PermitRootLogin no'
+        state: present
+
+    - name: SSH port を変更
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?Port '
+        line: 'Port {{ ssh_port }}'
+        state: present
+
+    - name: SSHサービスを再起動して設定を適用
+      service:
+        name: ssh
+        state: restarted

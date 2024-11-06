@@ -1,0 +1,53 @@
+---
+# fail2banがSSHログを読めるようにinstall_rsyslog.yamlより後に実行
+- name: fail2ban インストール & jailファイル設定
+  hosts: nozpi5
+  vars_files:
+    - vars.yml
+  become: yes  # sudoで実行と同じ
+  tasks:
+    - name: fail2ban インストール
+      apt:
+        name: fail2ban
+        state: present
+        update_cache: yes
+
+    - name: /var/run/fail2ban ディレクトリ作成 #fail2banがここにソケットファイルを作成する
+      file:
+        path: /var/run/fail2ban
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: DEFAULT jailファイルの設定
+      copy:
+        dest: /etc/fail2ban/jail.local
+        content: |
+          [DEFAULT]
+          bantime = 30m
+          findtime = 15m
+          maxretry = 5
+        backup: yes
+      notify:  # ハンドラーを呼び出し
+        - Restart fail2ban
+
+    - name: SSH jailファイルの設定
+      copy:
+        dest: /etc/fail2ban/jail.d/sshd.local
+        content: |
+          [sshd]
+          enabled = true
+          port = {{ ssh_port }}
+          filter = sshd
+          logpath = /var/log/auth.log
+          maxretry = 3
+        backup: yes
+      notify:  # ハンドラーを呼び出し
+        - Restart fail2ban
+
+  handlers:
+    - name: Restart fail2ban
+      service:
+        name: fail2ban
+        state: restarted

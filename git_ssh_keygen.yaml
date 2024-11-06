@@ -1,0 +1,36 @@
+---
+# 2024/10/17実行してgithubに登録済み
+# プレイブック実行後、ssh -i ~/pass/to/ssh_key -T git@github.com で鍵の設定を確認できる
+# 成功時の応答例： Hi MyName! You've successfully authenticated, but GitHub does not provide shell access.
+- name: Gitアクセス用のSSH Keyを生成
+  hosts: nozpi5
+  become: yes  # sudoで実行と同じ
+  vars_files:
+    - vars.yml
+  tasks:
+    - name: .sshディレクトリをなければ作成
+      file:
+        path: "{{ ssh_key_dir }}"
+        state: directory
+        owner: "{{ git_user }}"
+        group: "{{ git_user }}"
+        mode: '0700'
+
+    - name: SSH鍵ペアの生成
+      openssh_keypair:
+        path: "{{ ssh_key_path }}"
+        type: "{{ ssh_key_type }}"
+        comment: "{{ ssh_key_comment }}"
+        owner: "{{ git_user }}"
+        group: "{{ git_user }}"
+        mode: '0600'
+      register: ssh_key
+
+    - name: SSH鍵が作られたか確認
+      assert:
+        that:
+          - ssh_key.changed == true
+
+    - name: 公開鍵を表示
+      debug:
+        msg: "{{ ssh_key.public_key }}"
