@@ -1,0 +1,96 @@
+---
+ # Docker公式のDocker Engine インストール（Debian 向け）を元に
+ # playbook化している
+- name: Dockerをセットアップ 
+  hosts: nozpi5
+  become: yes  # sudoで実行と同じ
+  tasks:
+    # 古いバージョンのDockerをアンインストール
+    # Docker のかつてのバージョンは、docker、docker.io、docker-engineと呼ばれていた
+    - name: 古いバージョンのDockerをアンインストール
+      apt:
+        name:
+          - docker
+          - docker-engine
+          - docker.io
+          - containerd
+          - runc
+        state: absent
+        purge: yes
+
+    - name: システムのパッケージキャッシュを更新
+      apt:
+        update_cache: yes
+
+    - name: 必要な依存パッケージのインストール
+      apt:
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+        state: present
+
+    - name: ディストリビューション名を取得
+      command: lsb_release -cs
+      register: distro_codename
+
+    - name: アーキテクチャを取得
+      command: dpkg --print-architecture
+      register: system_architecture
+
+    - name: Dockerの公式GPG鍵を追加
+      shell: curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+    - name: Add Docker apt repository
+      copy:
+        dest: /etc/apt/sources.list.d/docker.list
+        content: |
+          deb [arch={{ system_architecture.stdout }} signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian {{ distro_codename.stdout }} stable
+
+    - name: aptキャッシュを更新
+      apt:
+        update_cache: yes
+
+    - name: Dockerのインストール
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+        state: present
+
+    - name: Dockerのサービスを有効化
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
+
+    - name: Dockerの動作確認
+      command: docker run hello-world
+      register: docker_hello_world
+
+    - debug:
+        msg:
+          - "{{ docker_hello_world.stdout }}"
+    
+    # Dockerfileのビルドステージでgitのprivate repo をcloneする際SSHマウントできるようにする
+    - name: daemon.json を作成し BuildKit を有効化(恒久)
+      template:
+        src: templates/daemon.json.j2
+        dest: /etc/docker/daemon.json
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: piユーザーをdockerグループに追加
+      user:
+        name: nozberrypi
+        groups: docker
+        append: yes
+
+    - name: Docker再起動
+      service:
+        name: docker
+        state: restarted

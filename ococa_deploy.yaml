@@ -1,0 +1,20 @@
+---
+- name: ococaをデプロイする
+  hosts: nozpi5
+  become: yes  # sudoで実行と同じ
+  tasks:
+    # COPYモジュールはディレクトリの再帰的なコピーをサポートしていない
+    # delete: yes は srcとdestを同期させる際に、srcに存在しないファイルやディレクトリをdestから削除する
+    - name: ococaディレクトリを転送
+      ansible.posix.synchronize:
+        src: ococa
+        dest: /home/nozberrypi
+        archive: yes
+        delete: yes
+
+    - name: 再帰的に所有者とグループを設定
+      file:
+        path: /home/nozberrypi/ococa
+        owner: nozberrypi
+        group: nozberrypi
+        recurse: yes

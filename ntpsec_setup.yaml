@@ -1,0 +1,20 @@
+---
+# ntpsecは初めからインストールされており、ユーザも作成されている
+- name: NTPSECの設定
+  hosts: nozpi5
+  become: yes # sudoで実行と同じ
+  tasks:
+
+    - name: ntp.confを配置する
+      template:
+        src: templates/ntp.conf.j2
+        dest: /etc/ntpsec/ntp.conf
+        owner: root
+        group: root
+        mode: '0644'
+        backup: yes # もともとあるconfファイルを上書きせず残す
+
+    - name: NTPsecサービスを再起動する
+      service:
+        name: ntpsec
+        state: restarted

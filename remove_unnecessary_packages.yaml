@@ -1,0 +1,162 @@
+---
+  # 削除前にdescriptionを表示する親切設計となっている
+- name: 不要なパッケージの削除
+  hosts: nozpi5
+  become: yes  # sudoで実行と同じ
+  tasks:
+    # bluez
+    - name: bluez 情報収集
+      command: "dpkg-query -W -f='${Package}: ${Description}' bluez"
+      ignore_errors: true
+      register: result
+    - name: bluez とは
+      debug:
+        msg: "{{ result.stdout.splitlines() }}"
+    - name: bluez 削除
+      apt:
+        name: bluez
+        state: absent
+        purge: yes
+      ignore_errors: yes
+
+    # pi-bluetooth
+    - name: pi-bluetooth 情報収集
+      command: "dpkg-query -W -f='${Package}: ${Description}' pi-bluetooth"
+      ignore_errors: true
+      register: result
+    - name: pi-bluetooth とは
+      debug:
+        msg: "{{ result.stdout.splitlines() }}"
+    - name: pi-bluetooth 削除
+      apt:
+        name: pi-bluetooth
+        state: absent
+        purge: yes
+      ignore_errors: yes
+    
+    # cups
+    - name: cups 情報収集
+      command: "dpkg-query -W -f='${Package}: ${Description}' cups"
+      ignore_errors: true
+      register: result
+    - name: cups とは
+      debug:
+        msg: "{{ result.stdout.splitlines() }}"
+    - name: cups 削除
+      apt:
+        name: cups
+        state: absent
+        purge: yes
+      ignore_errors: yes
+
+    # cups-browsed
+    - name: cups-browsed 情報収集
+      command: "dpkg-query -W -f='${Package}: ${Description}' cups-browsed"
+      ignore_errors: true
+      register: result
+    - name: cups-browsed とは
+      debug:
+        msg: "{{ result.stdout.splitlines() }}"
+    - name: cups-browsed 削除
+      apt:
+        name: cups-browsed
+        state: absent
+        purge: yes
+      ignore_errors: yes
+
+    # cups-daemon
+    - name: cups-daemon 情報収集
+      command: "dpkg-query -W -f='${Package}: ${Description}' cups-daemon"
+      ignore_errors: true
+      register: result
+    - name: cups-daemon とは
+      debug:
+        msg: "{{ result.stdout.splitlines() }}"
+    - name: cups-daemon 削除
+      apt:
+        name: cups-daemon
+        state: absent
+        purge: yes
+      ignore_errors: yes
+
+    # triggerhappy
+    - name: triggerhappy 情報収集
+      command: "dpkg-query -W -f='${Package}: ${Description}' triggerhappy"
+      ignore_errors: true
+      register: result
+    - name: triggerhappy とは
+      debug:
+        msg: "{{ result.stdout.splitlines() }}"
+    - name: triggerhappy 削除
+      apt:
+        name: triggerhappy
+        state: absent
+        purge: yes
+      ignore_errors: yes
+
+    # lightdm
+    - name: lightdm 情報収集
+      command: "dpkg-query -W -f='${Package}: ${Description}' lightdm"
+      ignore_errors: true
+      register: result
+    - name: lightdm とは
+      debug:
+        msg: "{{ result.stdout.splitlines() }}"
+    - name: lightdm 削除
+      apt:
+        name: lightdm
+        state: absent
+        purge: yes
+      ignore_errors: yes
+
+    # xserver-xorg
+    - name: xserver-xorg 情報収集
+      command: "dpkg-query -W -f='${Package}: ${Description}' xserver-xorg"
+      ignore_errors: true
+      register: result
+    - name: xserver-xorg とは
+      debug:
+        msg: "{{ result.stdout.splitlines() }}"
+    - name: xserver-xorg 削除
+      apt:
+        name: xserver-xorg
+        state: absent
+        purge: yes
+      ignore_errors: yes
+
+    # xinit
+    - name: xinit 情報収集
+      command: "dpkg-query -W -f='${Package}: ${Description}' xinit"
+      ignore_errors: true
+      register: result
+    - name: xinit とは
+      debug:
+        msg: "{{ result.stdout.splitlines() }}"
+    - name: xinit 削除
+      apt:
+        name: xinit
+        state: absent
+        purge: yes
+      ignore_errors: yes
+
+    # raspberrypi-ui-mods
+    - name: raspberrypi-ui-mods 情報収集
+      command: "dpkg-query -W -f='${Package}: ${Description}' raspberrypi-ui-mods"
+      ignore_errors: true
+      register: result
+    - name: raspberrypi-ui-mods とは
+      debug:
+        msg: "{{ result.stdout.splitlines() }}"
+    - name: raspberrypi-ui-mods 削除
+      apt:
+        name: raspberrypi-ui-mods
+        state: absent
+        purge: yes
+      ignore_errors: yes
+      
+    # ntp (ntpsecがインストールされているため)
+    - name: ntp パッケージを削除する
+      apt:
+        name: ntp
+        state: absent
+        purge: yes

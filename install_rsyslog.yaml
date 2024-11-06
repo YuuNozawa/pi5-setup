@@ -1,0 +1,32 @@
+---
+# fail2banがSSHログを読めるようにinstall_fail2ban.yamlより先にこちらを実行
+- name: rsyslog インストール & 設定
+  hosts: nozpi5
+  become: yes  # sudoで実行と同じ
+  tasks:
+    - name: rsyslog インストール
+      apt:
+        name: rsyslog
+        state: present
+        update_cache: yes
+
+    - name: rsyslogを有効化
+      service:
+        name: rsyslog
+        state: started
+        enabled: true
+
+    - name: 認証関連のイベントを/var/log/auth.logに記録
+      lineinfile:
+        path: /etc/rsyslog.conf
+        regexp: '^auth,authpriv\.\*'
+        line: 'auth,authpriv.* /var/log/auth.log'
+        state: present
+      notify:
+        - Restart rsyslog
+
+  handlers:
+    - name: Restart rsyslog
+      service:
+        name: rsyslog
+        state: restarted

@@ -1,0 +1,12 @@
+---
+- name: OSアップデートの自動化
+  hosts: nozpi5
+  become: yes  # sudoで実行と同じ
+  tasks:
+    - name: cron job の追加 または 更新
+      cron:
+        name: "apt update と upgrade の自動化"
+        minute: "0"
+        hour: "2"
+        weekday: "0"
+        job: "apt update && apt upgrade -y"

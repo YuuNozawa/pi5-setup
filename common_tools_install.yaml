@@ -1,0 +1,19 @@
+---
+- name: 何かと便利なツールをインストールする
+  hosts: nozpi5
+  become: yes
+  tasks:
+    - name: nmapをなければインストール
+      apt:
+        name: nmap
+        state: present
+
+    - name: curlをなければインストール
+      apt:
+        name: curl
+        state: present
+
+    - name: gitをなければインストール
+      apt:
+        name: git
+        state: present
