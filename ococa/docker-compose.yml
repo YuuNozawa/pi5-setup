@@ -9,10 +9,18 @@ services:
         - default
     ports:
       - '80:80'
+      - "443:443"
     depends_on:
       - backend
+      - auth
+      - grafana
+      - prometheus
+    volumes:
+      - /etc/ssl/raspberrypi/raspberrypi.crt:/etc/ssl/raspberrypi/raspberrypi.crt:ro
+      - /etc/ssl/raspberrypi/raspberrypi.key:/etc/ssl/raspberrypi/raspberrypi.key:ro
     networks:
-      - webnet
+      webnet:
+        ipv4_address: 172.25.0.10
 
   backend:
     build:
@@ -22,6 +30,24 @@ services:
         - default
     ports:
       - '8080:8080'
+    networks:
+      - webnet
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    extra_hosts:
+      - "raspberrypi.local:172.25.0.10"  # nginx の固定IPを指定
+    depends_on:
+      - db
+      - auth
+  
+  auth:
+    build:
+      context: ./auth
+      dockerfile: Dockerfile
+      ssh:
+        - default
+    ports:
+      - '9000:9000'
     networks:
       - webnet
     environment:
@@ -36,13 +62,14 @@ services:
     ports: 
       - 3306:3306
     volumes: 
-      - mysql-data:/var/lib/mysql # pi5ではデータ永続化必須(普通に再起動とかするから)
+      - mysql-data:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       EXPORTER_PASSWORD: ${EXPORTER_PASSWORD}
+      MYSQL_AUTH_PASSWORD: ${MYSQL_AUTH_PASSWORD}
     networks:
       - webnet
 
@@ -128,6 +155,10 @@ services:
 
 networks:
   webnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/24
 
 volumes:
   mysql-data:

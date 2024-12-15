@@ -17,10 +17,13 @@ RUN mkdir -p /root/.ssh && ssh-keyscan github.com >> /root/.ssh/known_hosts
 
 # BuildKitのSSHエージェントを使用
 # Gitリポジトリからコードをクローン
-RUN --mount=type=ssh git clone git@github.com:YuuNozawa/ococa.git ococa
+RUN --mount=type=ssh git clone git@github.com:YuuNozawa/ococa-frontend.git ococa-frontend
 
-# clientディレクトリに移動
-WORKDIR /app/ococa/client
+# ococa-frontendディレクトリに移動
+WORKDIR /app/ococa-frontend
+
+# .env.production をコピー
+COPY .env.production .env.production
 
 # 依存関係をインストール
 RUN npm install
@@ -33,7 +36,7 @@ RUN npm run build
 FROM nginx:latest
 
 # ビルド成果物をNginxの公開ディレクトリにコピー
-COPY --from=build /app/ococa/client/build /var/www/html
+COPY --from=build /app/ococa-frontend/build /var/www/html
 
 # カスタムNginx設定ファイルをコピー
 COPY ./nginx.conf /etc/nginx/nginx.conf

@@ -1,0 +1,79 @@
+---
+- name: Raspberry Pi 自己署名証明書の生成
+  hosts: nozpi5
+  become: yes  # sudoで実行と同じ
+  vars_files:
+    - vars.yml
+
+  collections:
+    - community.crypto
+
+  tasks:
+    - name: 証明書用ディレクトリを作成
+      file:
+        path: "{{ cert_dir }}"
+        state: directory
+        owner: "{{ cert_owner }}"
+        group: "{{ cert_group }}"
+        mode: '0755'
+
+    - name: 証明書の秘密鍵の存在を確認
+      stat:
+        path: "{{ cert_dir }}/raspberrypi.key"
+      register: key_file
+
+    - name: 秘密鍵を生成
+      community.crypto.openssl_privatekey:
+        path: "{{ cert_dir }}/raspberrypi.key"
+        size: "{{ key_size }}"
+        type: RSA
+        mode: '0600'
+      register: private_key
+      # すでに鍵が存在する場合はスキップ
+      when: not key_file.stat.exists
+
+    - name: 証明書署名要求（CSR）の存在を確認
+      stat:
+        path: "{{ cert_dir }}/raspberrypi.csr"
+      register: csr_file
+
+    - name: 証明書署名要求（CSR）を生成
+      community.crypto.openssl_csr:
+        path: "{{ cert_dir }}/raspberrypi.csr"
+        privatekey_path: "{{ cert_dir }}/raspberrypi.key"
+        common_name: "{{ common_name }}"
+        subject_alt_name: "{{ subject_alt_names }}"
+      register: csr
+      # すでにCSRが存在する場合はスキップ
+      when: not csr_file.stat.exists
+
+    - name: 証明書の公開証明書の存在を確認
+      stat:
+        path: "{{ cert_dir }}/raspberrypi.crt"
+      register: cert_file
+
+    - name: 自己署名証明書を生成
+      community.crypto.x509_certificate:
+        path: "{{ cert_dir }}/raspberrypi.crt"
+        privatekey_path: "{{ cert_dir }}/raspberrypi.key"
+        csr_path: "{{ cert_dir }}/raspberrypi.csr"
+        provider: selfsigned
+        selfsigned_not_before: "{{ selfsigned_not_before }}"
+        selfsigned_not_after: "{{ selfsigned_not_after }}"
+      register: certificate
+      # すでに証明書が存在する場合はスキップ
+      when: not cert_file.stat.exists
+
+    - name: 秘密鍵の所有権とパーミッションを確認、グループ所有権をwww-data(NGINX)に変更
+      file:
+        path: "{{ cert_dir }}/raspberrypi.key"
+        owner: "{{ cert_owner }}"
+        group: "{{ key_group }}"
+        mode: '0640'
+
+    - name: 証明書の公開証明書の所有権とパーミッションを確認
+      file:
+        path: "{{ cert_dir }}/raspberrypi.crt"
+        owner: "{{ cert_owner }}"
+        group: "{{ cert_group }}"
+        mode: '0644'

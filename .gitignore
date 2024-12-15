@@ -1,5 +1,19 @@
-inventory.ini
-git_ssh_keygen.yaml
-firewall_setup.yaml
-install_fail2ban.yaml
-secure_ssh.yaml
+.vscode/*
+.DS_Store
+
+# Docker
+ococa/.env
+ococa/backend/certs/*
+ococa/backend/application-prod.properties
+
+ococa/nginx/.env.production
+
+ococa/auth/application-prod.properties
+
+ococa/db/docker-entrypoint-initdb.d/ddl.sql
+ococa/db/docker-entrypoint-initdb.d/create_auth_user.sql
+ococa/db/docker-entrypoint-initdb.d/create_auth_tables.sql
+
+# Ansible
+host_vars/*
+vars.yml
