@@ -36,7 +36,9 @@ RUN npm run build
 FROM nginx:latest
 
 # ビルド成果物をNginxの公開ディレクトリにコピー
-COPY --from=build /app/ococa-frontend/build /var/www/html
+COPY --from=build /app/ococa-frontend/build /var/www/html/ococa
+
+COPY ./portal /var/www/html/portal
 
 # カスタムNginx設定ファイルをコピー
 COPY ./nginx.conf /etc/nginx/nginx.conf
