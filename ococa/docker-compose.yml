@@ -18,6 +18,7 @@ services:
     volumes:
       - /etc/ssl/raspberrypi/raspberrypi.crt:/etc/ssl/raspberrypi/raspberrypi.crt:ro
       - /etc/ssl/raspberrypi/raspberrypi.key:/etc/ssl/raspberrypi/raspberrypi.key:ro
+      - playwright-reports:/usr/share/nginx/html:ro
     networks:
       webnet:
         ipv4_address: 172.25.0.10
@@ -137,7 +138,6 @@ services:
     networks:
       - webnet
 
-
   grafana:
     build:
       context: ./grafana
@@ -153,6 +153,20 @@ services:
     depends_on:
       - prometheus
 
+  e2e:
+    build:
+      context: ./e2e
+      dockerfile: Dockerfile
+    networks:
+      - webnet
+    depends_on:
+      - nginx
+      - db
+      - backend
+      - auth
+    volumes:
+      - playwright-reports:/reports
+
 networks:
   webnet:
     driver: bridge
@@ -164,3 +178,4 @@ volumes:
   mysql-data:
   prometheus-data:
   grafana-data:
+  playwright-reports:
