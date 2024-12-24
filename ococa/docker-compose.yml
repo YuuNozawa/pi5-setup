@@ -78,6 +78,9 @@ services:
     build:
       context: ./prometheus
       dockerfile: Dockerfile
+    command:
+      - '--web.route-prefix=/prometheus/'
+      - '--web.external-url=https://raspberrypi.local/prometheus/'
     ports:
       - "9090:9090"
     volumes:
