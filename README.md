@@ -29,7 +29,8 @@ docker-composeで以下のサービスが立ち上がり常駐します。
 ![構成図](./images/pi5.drawio.png)  
 
 ### OIDC
-![OIDC](./images/oidc.gif)  
+![OIDC](./images/oidc.gif)
+![OIDC](./images/auth.jpg)
 
 ### 監視
 ![ダッシュボード](./images/dashboard.jpg)  
