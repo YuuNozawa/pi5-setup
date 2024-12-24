@@ -5,9 +5,12 @@ raspberry piをサーバ化する処理をAnsibleで自動化しました。
 
 docker-composeで以下のサービスが立ち上がり常駐します。  
 - ムードトラッキングアプリ(React)
+    - [ソースコード](https://github.com/YuuNozawa/ococa-frontend)
 - APIサーバ(Spring-Boot)
-- データベース(MySQL)
+    - [ソースコード](https://github.com/YuuNozawa/ococa-backend)
 - 認可サーバ(Spring Authorization Server)
+    - [ソースコード](https://github.com/YuuNozawa/auth-server)
+- データベース(MySQL)
 - Grafana
 - PrometheusおよびExporter
 
@@ -22,5 +25,12 @@ docker-composeで以下のサービスが立ち上がり常駐します。
 - SSO
 - CI/CD
 
-[構成図](./images/pi5.drawio.png)  
+### 構成図 
+![構成図](./images/pi5.drawio.png)  
 
+### OIDC
+![OIDC](./images/oidc.gif)  
+
+### 監視
+![ダッシュボード](./images/dashboard.jpg)  
+![ダッシュボード2](./images/dashboard2.jpg)  

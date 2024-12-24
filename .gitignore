@@ -6,6 +6,9 @@ ococa/.env
 ococa/backend/certs/*
 ococa/backend/application-prod.properties
 
+ococa/nginx/portal/images/grafana.jpeg
+ococa/nginx/portal/images/prometheus.png
+
 ococa/nginx/.env.production
 
 ococa/auth/application-prod.properties
@@ -13,6 +16,8 @@ ococa/auth/application-prod.properties
 ococa/db/docker-entrypoint-initdb.d/ddl.sql
 ococa/db/docker-entrypoint-initdb.d/create_auth_user.sql
 ococa/db/docker-entrypoint-initdb.d/create_auth_tables.sql
+
+ococa/e2e/playwright/.env.production
 
 # Ansible
 host_vars/*
