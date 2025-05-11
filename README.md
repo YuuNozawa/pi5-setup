@@ -6,6 +6,8 @@ raspberry piをサーバ化する処理をAnsibleで自動化しました。
 docker-composeで以下のサービスが立ち上がり常駐します。  
 - ムードトラッキングアプリ(React)
     - [ソースコード](https://github.com/YuuNozawa/ococa-frontend)
+- 日めくりカウンドダウンアプリ(RoR)
+    - [ソースコード](https://github.com/YuuNozawa/countdown-app)
 - APIサーバ(Spring-Boot)
     - [ソースコード](https://github.com/YuuNozawa/ococa-backend)
 - 認可サーバ(Spring Authorization Server)
